@@ -1,0 +1,143 @@
+export const southAfricanAirports = [
+  { code: "JNB", city: "Johannesburg", name: "O.R. Tambo International Airport" },
+  { code: "CPT", city: "Cape Town", name: "Cape Town International Airport" },
+  { code: "DUR", city: "Durban", name: "King Shaka International Airport" },
+  { code: "MQP", city: "Nelspruit", name: "Kruger Mpumalanga International Airport" },
+  { code: "HDS", city: "Hoedspruit", name: "Hoedspruit Airport" },
+  { code: "PLZ", city: "Port Elizabeth", name: "Chief Dawid Stuurman International Airport" },
+  { code: "GRJ", city: "George", name: "George Airport" },
+  { code: "BFN", city: "Bloemfontein", name: "Bram Fischer International Airport" }
+];
+
+export const airlines = [
+  "South African Airways",
+  "FlySafair",
+  "Airlink",
+  "British Airways",
+  "Emirates",
+  "Lufthansa",
+  "Qatar Airways"
+];
+
+export const flights = [
+  {
+    id: "f1",
+    flightNumber: "SA345",
+    airline: "South African Airways",
+    origin: "Johannesburg (JNB)",
+    originCode: "JNB",
+    destination: "Nelspruit (MQP)",
+    destinationCode: "MQP",
+    departureTime: "08:15",
+    arrivalTime: "09:30",
+    duration: "1h 15m",
+    status: "On Time",
+    gate: "A12",
+    price: "R1,850"
+  },
+  {
+    id: "f2",
+    flightNumber: "FA208",
+    airline: "FlySafair",
+    origin: "Cape Town (CPT)",
+    originCode: "CPT",
+    destination: "Nelspruit (MQP)",
+    destinationCode: "MQP",
+    departureTime: "11:45",
+    arrivalTime: "14:00",
+    duration: "2h 15m",
+    status: "On Time",
+    gate: "B07",
+    price: "R2,150"
+  },
+  {
+    id: "f3",
+    flightNumber: "4Z301",
+    airline: "Airlink",
+    origin: "Durban (DUR)",
+    originCode: "DUR",
+    destination: "Nelspruit (MQP)",
+    destinationCode: "MQP",
+    departureTime: "13:20",
+    arrivalTime: "14:45",
+    duration: "1h 25m",
+    status: "On Time",
+    gate: "C03",
+    price: "R2,050"
+  },
+  {
+    id: "f4",
+    flightNumber: "SA412",
+    airline: "South African Airways",
+    origin: "Nelspruit (MQP)",
+    originCode: "MQP",
+    destination: "Johannesburg (JNB)",
+    destinationCode: "JNB",
+    departureTime: "16:30",
+    arrivalTime: "17:45",
+    duration: "1h 15m",
+    status: "On Time",
+    gate: "A08",
+    price: "R1,850"
+  },
+  {
+    id: "f5",
+    flightNumber: "4Z205",
+    airline: "Airlink",
+    origin: "Johannesburg (JNB)",
+    originCode: "JNB",
+    destination: "Hoedspruit (HDS)",
+    destinationCode: "HDS",
+    departureTime: "09:45",
+    arrivalTime: "10:50",
+    duration: "1h 05m",
+    status: "Boarding",
+    gate: "B15",
+    price: "R1,950"
+  },
+  {
+    id: "f6",
+    flightNumber: "FA315",
+    airline: "FlySafair",
+    origin: "Cape Town (CPT)",
+    originCode: "CPT",
+    destination: "Hoedspruit (HDS)",
+    destinationCode: "HDS",
+    departureTime: "10:30",
+    arrivalTime: "12:45",
+    duration: "2h 15m",
+    status: "Delayed",
+    gate: "A22",
+    price: "R2,350"
+  },
+  {
+    id: "f7",
+    flightNumber: "4Z118",
+    airline: "Airlink",
+    origin: "Hoedspruit (HDS)",
+    originCode: "HDS",
+    destination: "Johannesburg (JNB)",
+    destinationCode: "JNB",
+    departureTime: "15:20",
+    arrivalTime: "16:25",
+    duration: "1h 05m",
+    status: "On Time",
+    gate: "C11",
+    price: "R1,950"
+  },
+  {
+    id: "f8",
+    flightNumber: "SA528",
+    airline: "South African Airways",
+    origin: "Nelspruit (MQP)",
+    originCode: "MQP",
+    destination: "Cape Town (CPT)",
+    destinationCode: "CPT",
+    departureTime: "18:15",
+    arrivalTime: "20:30",
+    duration: "2h 15m",
+    status: "On Time",
+    gate: "B04",
+    price: "R2,150"
+  }
+];
