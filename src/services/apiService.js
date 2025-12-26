@@ -145,4 +145,13 @@ export const apiService = {
     const response = await fetch(`${API_BASE}/accommodations`);
     return handleResponse(response);
   },
+  // Analytics / Interactions
+  async recordInteraction(interaction) {
+    const response = await fetch(`${API_BASE}/analytics/interactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(interaction)
+    });
+    return handleResponse(response);
+  }
 };

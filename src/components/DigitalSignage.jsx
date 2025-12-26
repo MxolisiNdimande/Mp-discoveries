@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { destinations, flights } from "../lib/mockData";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Calendar, Clock, Star } from "lucide-react";
+import { MapPin, Calendar, Clock, Star, MonitorPlay } from "lucide-react";
+import { ExploreOption } from './ExploreOption';
 
-export function DigitalSignage() {
+export function DigitalSignage({ onExplore, onOpenKiosk, onOpenAccommodations, onOpenFlights }) {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [currentFlight] = useState(flights[0]);
 
@@ -44,8 +45,13 @@ export function DigitalSignage() {
       {/* Content */}
       <div className="relative h-full flex flex-col justify-between p-12 text-white">
         {/* Top Bar - Flight Context */}
-        <div className="flex items-center justify-between">
-          <div className="bg-black/60 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/20">
+        <div className="relative flex items-center justify-between">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onExplore && onExplore('interactive-kiosk')}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onExplore && onExplore('interactive-kiosk')}
+            className="bg-black/60 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/20 cursor-pointer">
             <div className="flex items-center gap-6">
               <div>
                 <p className="text-sm opacity-80">
@@ -72,6 +78,12 @@ export function DigitalSignage() {
                 <p className="text-xl">{currentFlight.gate}</p>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2 mx-2 flex-nowrap overflow-x-auto">
+            <ExploreOption compact topbar className="flex-shrink-0" Icon={MonitorPlay} subtitle="Open Kiosk" title="Kiosk" onClick={() => onOpenKiosk && onOpenKiosk()} />
+            <ExploreOption compact topbar className="flex-shrink-0" Icon={MapPin} subtitle="View Accom." title="Accommodations" onClick={() => onOpenAccommodations && onOpenAccommodations()} />
+            <ExploreOption compact topbar className="flex-shrink-0" Icon={Calendar} subtitle="View Flights" title="Flights" onClick={() => onOpenFlights && onOpenFlights()} />
           </div>
 
           <div className="bg-black/60 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/20">
@@ -221,7 +233,7 @@ export function DigitalSignage() {
               </div>
             </div>
 
-            <div className="bg-white text-black rounded-2xl px-8 py-4 inline-block">
+            <div role="button" tabIndex={0} onClick={() => onExplore && onExplore('interactive-kiosk')} className="bg-white text-black rounded-2xl px-8 py-4 inline-block cursor-pointer">
               <p className="text-xl">
                 Find us at the Interactive Kiosks
               </p>

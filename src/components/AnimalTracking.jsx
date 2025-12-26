@@ -5,7 +5,7 @@ import { animalSightings } from '../lib/mockData';
 import { MapPin, Clock, Users, Activity, Eye, DoorOpen } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
-export function AnimalTracking() {
+export function AnimalTracking({ compact = false }) {
   const recentSightings = animalSightings.filter(s => s.status === 'recent');
   const activeSightings = animalSightings.filter(s => s.status === 'active');
 
@@ -22,6 +22,22 @@ export function AnimalTracking() {
     if (confidence >= 80) return 'text-yellow-600';
     return 'text-orange-600';
   };
+
+  if (compact) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="mb-1">Live Animal Tracking</h4>
+              <p className="text-sm text-muted-foreground">{activeSightings.length} active • {recentSightings.length} recent</p>
+            </div>
+            <Badge className="bg-green-600">Live</Badge>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">

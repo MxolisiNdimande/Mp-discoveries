@@ -32,9 +32,14 @@
     "sonner": "2.0.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
+    "baseline-browser-mapping": "^2.9.11",
     "concurrently": "^8.2.2",
+    "jsdom": "^27.3.0",
     "nodemon": "^3.1.10",
     "postcss": "^8.4.24",
     "supertest": "^6.3.4",

@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import db from './db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -233,13 +234,17 @@ const authorizeRoles = (roles) => {
 
 // ==================== HEALTH CHECK ====================
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Gateway Discoveries Backend is running!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0'
-  });
+  (async () => {
+    const dbConnected = await db.testConnection();
+    res.json({
+      status: 'OK',
+      message: 'Gateway Discoveries Backend is running!',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0',
+      database: dbConnected ? 'connected' : 'not-configured'
+    });
+  })();
 });
 
 // ==================== AUTHENTICATION API ====================
@@ -343,29 +348,61 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
 
 // ==================== DESTINATIONS API ====================
 app.get('/api/destinations', (req, res) => {
-  res.json(destinations);
+  (async () => {
+    try {
+      if (db && db.pool) {
+        const { rows } = await db.query('SELECT id, name, country, description, image_url as "imageUrl", rating, category, avg_cost as "avgCost", best_time as "bestTime", has_animal_tracking as "hasAnimalTracking", views, scans, emails_sent as "emailsSent" FROM destinations ORDER BY views DESC');
+        return res.json(rows);
+      }
+    } catch (err) {
+      console.error('Error fetching destinations from DB:', err.message || err);
+    }
+
+    res.json(destinations);
+  })();
 });
 
 app.get('/api/destinations/:id', (req, res) => {
   const { id } = req.params;
-  const destination = destinations.find(d => d.id === id);
-  
-  if (!destination) {
-    return res.status(404).json({ error: 'Destination not found' });
-  }
-  
-  res.json(destination);
+  (async () => {
+    try {
+      if (db && db.pool) {
+        const { rows } = await db.query('SELECT id, name, country, description, image_url as "imageUrl", rating, category, avg_cost as "avgCost", best_time as "bestTime", has_animal_tracking as "hasAnimalTracking", views, scans, emails_sent as "emailsSent" FROM destinations WHERE id = $1', [id]);
+        if (rows.length) return res.json(rows[0]);
+        return res.status(404).json({ error: 'Destination not found' });
+      }
+    } catch (err) {
+      console.error('Error fetching destination from DB:', err.message || err);
+    }
+
+    const destination = destinations.find(d => d.id === id);
+    if (!destination) {
+      return res.status(404).json({ error: 'Destination not found' });
+    }
+    res.json(destination);
+  })();
 });
 
 // ==================== ANIMAL SIGHTINGS API ====================
 // Public route - get recent sightings
 app.get('/api/animal-sightings/recent', (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
-  const recentSightings = animalSightings
-    .filter(s => s.status === 'recent' || s.status === 'active')
-    .slice(0, limit);
-  
-  res.json(recentSightings);
+  (async () => {
+    try {
+      if (db && db.pool) {
+        const { rows } = await db.query("SELECT id, species, location, gate, image_url as \"image\", status, count, confidence, reported_at as \"time\" FROM animal_sightings WHERE status IN ('recent','active') ORDER BY reported_at DESC LIMIT $1", [limit]);
+        return res.json(rows);
+      }
+    } catch (err) {
+      console.error('Error fetching animal sightings from DB:', err.message || err);
+    }
+
+    const recentSightings = animalSightings
+      .filter(s => s.status === 'recent' || s.status === 'active')
+      .slice(0, limit);
+
+    res.json(recentSightings);
+  })();
 });
 
 // Protected routes - require authentication
@@ -517,18 +554,42 @@ app.post('/api/accommodations', authenticateToken, authorizeRoles(['admin']), (r
 // ==================== FLIGHTS API ====================
 app.get('/api/flights', (req, res) => {
   const { origin, destination } = req.query;
-  
-  let filteredFlights = flights;
-  
-  if (origin && origin !== 'all') {
-    filteredFlights = filteredFlights.filter(f => f.originCode === origin);
-  }
-  
-  if (destination && destination !== 'all') {
-    filteredFlights = filteredFlights.filter(f => f.destinationCode === destination);
-  }
-  
-  res.json(filteredFlights);
+  (async () => {
+    try {
+      if (db && db.pool) {
+        const clauses = [];
+        const params = [];
+        let idx = 1;
+
+        if (origin && origin !== 'all') {
+          clauses.push(`origin_code = $${idx++}`);
+          params.push(origin);
+        }
+        if (destination && destination !== 'all') {
+          clauses.push(`destination_code = $${idx++}`);
+          params.push(destination);
+        }
+
+        const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+        const q = `SELECT id, flight_number as "flightNumber", airline, origin_city as origin, origin_code as "originCode", destination_city as destination, destination_code as "destinationCode", to_char(departure_time, 'HH24:MI') as departure_time, to_char(arrival_time, 'HH24:MI') as arrival_time, duration, status, gate, price FROM flights ${where} ORDER BY departure_time`;
+        const { rows } = await db.query(q, params);
+        return res.json(rows);
+      }
+    } catch (err) {
+      console.error('Error fetching flights from DB:', err.message || err);
+    }
+
+    let filteredFlights = flights;
+
+    if (origin && origin !== 'all') {
+      filteredFlights = filteredFlights.filter(f => f.originCode === origin);
+    }
+    if (destination && destination !== 'all') {
+      filteredFlights = filteredFlights.filter(f => f.destinationCode === destination);
+    }
+
+    res.json(filteredFlights);
+  })();
 });
 
 app.get('/api/flights/:id', (req, res) => {
@@ -650,7 +711,7 @@ let server = null;
 // Only start the server when not running under test environment
 if (process.env.NODE_ENV !== 'test') {
   // Start server and keep the instance
-  server = app.listen(PORT, () => {
+  server = app.listen(PORT, async () => {
     console.log(`🚀 Backend server running on http://localhost:${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
@@ -660,6 +721,10 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🏨 Accommodations API: http://localhost:${PORT}/api/accommodations`);
     console.log(`✈️  Flights API: http://localhost:${PORT}/api/flights`);
     console.log(`📈 Analytics API: http://localhost:${PORT}/api/analytics`);
+
+    const dbConnected = await db.testConnection();
+    console.log(`🗄️  Database: ${dbConnected ? 'connected' : 'not configured / unavailable'}`);
+
     console.log('\n💡 Demo Credentials:');
     console.log('   Admin: admin@gatewaydiscoveries.com / admin123');
     console.log('   Ranger: ranger@kruger.co.za / kruger123');
